@@ -1,4 +1,4 @@
-let userpin = Number(localStorage.getItem("userpin"));  // Declare userpin globally
+let userpin = Number(localStorage.getItem("userpin")); // Retrieve stored user PIN
 
 const users = [
   { name: "karan", pin: 1234, balance: 10000000 },
@@ -7,55 +7,86 @@ const users = [
 ];
 
 function deposit() {
-  let add_amout = Number(document.getElementById("deposit").value); // Get deposit amount
-  if (!userpin) {
+  let depositInput = document.getElementById("deposit");
+  let add_amount = Number(depositInput.value);
+  let user = users.find((i) => i.pin === userpin);
+
+  if (!user) {
     alert("Please log in first.");
     return;
   }
-  let user = users.find((i) => i.pin === userpin);
-    user.balance += add_amout;
-    alert(`Deposit successful! New balance: ₹${user.balance}`);
-}
-function withdraw(){
-  let withdraw_amout =Number(document.getElementById("withdraw").value);
-  let user = users.find((i) => i.pin === userpin);
-  if(user.balance >= withdraw_amout){
-    user.balance -= withdraw_amout;
-    alert(`withdrow successful! new Balance:₹${user.balance}` )
+
+  if (depositInput.value.trim() === "" || isNaN(add_amount) || add_amount <= 0) {
+    alert("Please enter a valid deposit amount (greater than 0).");
+    return;
   }
-  else{
-    alert("insuffiest amount")
-  }
+
+  user.balance += add_amount;
+  alert(`Deposit successful! New balance: ₹${user.balance}`);
+  depositInput.value = ""; 
 }
-function checkBalance(){
+
+function withdraw() {
+  let withdrawInput = document.getElementById("withdraw");
+  let withdraw_amount = Number(withdrawInput.value);
   let user = users.find((i) => i.pin === userpin);
-  alert(`your current balance is ${user.balance}`)
+
+  if (!user) {
+    alert("Please log in first.");
+    return;
+  }
+
+  if (withdrawInput.value.trim() === "" || isNaN(withdraw_amount) || withdraw_amount <= 0) {
+    alert("Please enter a valid withdrawal amount (greater than 0).");
+    return;
+  }
+
+  if (user.balance < withdraw_amount) {
+    alert("Insufficient balance. Please enter a lower amount.");
+    return;
+  }
+
+  user.balance -= withdraw_amount;
+  alert(`Withdrawal successful! New balance: ₹${user.balance}`);
+  withdrawInput.value = ""; 
+}
+
+function checkBalance() {
+  let user = users.find((i) => i.pin === userpin);
+
+  if (!user) {
+    alert("Please log in first.");
+    return;
+  }
+
+  alert(`Your current balance is ₹${user.balance}`);
 }
 
 function validPin() {
   let messageElement = document.getElementById("message");
-  let inputpin = Number(document.getElementById("pin").value);
+  let pinInput = document.getElementById("pin");
+  let inputpin = Number(pinInput.value);
 
-  // Find the user by PIN
+  if (pinInput.value.trim() === "" || isNaN(inputpin)) {
+    messageElement.textContent = "Please enter a valid PIN.";
+    messageElement.style.color = "red";
+    return;
+  }
+
   let user = users.find((user) => user.pin === inputpin);
 
   if (user) {
-    // Successfully found the user, store the userpin in localStorage and in the global variable
     userpin = user.pin;
-     localStorage.setItem("userpin", userpin);
+    localStorage.setItem("userpin", userpin);
 
     messageElement.textContent = `Welcome, ${user.name}!`;
     messageElement.style.color = "green";
 
-    // Show deposit section after successful login (here I assume you show the deposit section right away)
     setTimeout(() => {
       window.location.href = "dashborard.html";
-    });
+    }, 1000);
   } else {
     messageElement.textContent = "Invalid PIN. Please try again.";
     messageElement.style.color = "red";
   }
 }
-
-
-
